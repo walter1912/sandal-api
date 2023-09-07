@@ -10,6 +10,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { RolesGuard } from './middlewares/guards/roles.guard';
 import { AuthGuard } from './middlewares/guards/auth.guard';
 import { ValidationPipe } from './middlewares/pipes/validation.pipe';
+import { ProductsModule } from './products/products.module';
 // kết nối với mongoDB
 
 @Module({
@@ -18,6 +19,7 @@ import { ValidationPipe } from './middlewares/pipes/validation.pipe';
     MongooseModule.forRoot(process.env.CONNECTION_STRING),
     CustomersModule,
     AuthModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [
