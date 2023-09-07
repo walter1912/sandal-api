@@ -16,4 +16,5 @@ export class UserRegsiterDto {
   @IsDateString()
   readonly dob: string;
   readonly gender: string;
+  readonly roles: string;
 }

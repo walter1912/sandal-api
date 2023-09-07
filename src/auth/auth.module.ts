@@ -9,11 +9,12 @@ import { AuthService } from './auth.service';
 
 import { jwtConstants } from './constants';
 import { User, UserSchema } from './schema/user.schema';
+import { Model } from 'mongoose';
 
 @Module({
   imports: [
     CustomersModule,
-    
+
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
@@ -23,5 +24,6 @@ import { User, UserSchema } from './schema/user.schema';
   ],
   providers: [AuthService],
   controllers: [AuthController],
+  // exports: [AuthService, AuthModule],
 })
 export class AuthModule {}

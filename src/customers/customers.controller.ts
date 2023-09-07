@@ -15,14 +15,9 @@ import {
 import { Query as QueryExpress } from 'express-serve-static-core';
 
 import { CustomersService } from './customers.service';
-import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import { Customer } from './schema/customer.schema';
-import { Public } from 'config/decorations/public.decorator';
 
 import { Request as ReqExpress, Response as ResExpress } from 'express';
-import { Roles } from 'config/decorations/roles.decorator';
-import { Role } from 'config/enums/role.enum';
 import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
 
 @Controller('customers')

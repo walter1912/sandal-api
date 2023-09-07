@@ -28,10 +28,10 @@ import { ProductsModule } from './products/products.module';
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

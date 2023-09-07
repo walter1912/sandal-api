@@ -24,10 +24,13 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
-
+  async findById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+    return user;
+  }
   async register(registerDto: UserRegsiterDto): Promise<{ token: string }> {
     let token = '';
-    let { password, username, ...customer } = registerDto;
+    let { password, username, roles, ...customer } = registerDto;
 
     let customerDto: CreateCustomerDto;
     customerDto = { username, ...customer };
@@ -45,7 +48,7 @@ export class AuthService {
       const hashed = await bcrypt.hash(password, salt);
       // Store hash in your password DB.
       let userDto: UserDto;
-      userDto = { username, password: hashed };
+      userDto = { username, password: hashed, roles };
       let user = new this.userModel(userDto).save();
       token = await this.createToken(user);
     } catch (err) {
@@ -72,19 +75,20 @@ export class AuthService {
   ): Promise<{ token: string }> {
     let token = '';
     const { username, oldPassword, newPassword } = userChangeDto;
-    const userDto: UserDto = { username, password: oldPassword };
+    let roles = '2';
+    const userDto: UserDto = { username, password: oldPassword, roles };
     const { userExisted } = await this.checkUserExist(userDto);
     if (userExisted) {
       const salt = await bcrypt.genSalt(10);
       const hashed = await bcrypt.hash(newPassword, salt);
-      const putUser: UserDto = { username , password: hashed };
+      const putUser: UserDto = { username, password: hashed, roles: userExisted.roles };
       const id = userExisted._id;
       const newUser = await this.userModel.findByIdAndUpdate(id, putUser, {
         new: true,
         runValidators: true,
       });
-      console.log("newUser: ", newUser);
-      
+      console.log('newUser: ', newUser);
+
       token = await this.createToken(newUser);
     }
     return { token };
@@ -118,9 +122,9 @@ export class AuthService {
   }
 
   async createToken(user): Promise<string> {
-    const payload = { id: user._id, username: user.username };
+    let roles = user.roles ? user.roles : '2';
+    const payload = { id: user._id, username: user.username, roles };
     let access_token = await this.jwtService.signAsync(payload);
     return access_token;
   }
-  
 }

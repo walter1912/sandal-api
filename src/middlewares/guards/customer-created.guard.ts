@@ -13,6 +13,7 @@ export class CustomerCreatedGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const currentUser = request['user'];
+    console.log("user cus guard: ", currentUser);
     if (!currentUser) {
       throw new UnauthorizedException('Khách hàng không có quyền này!');
     }

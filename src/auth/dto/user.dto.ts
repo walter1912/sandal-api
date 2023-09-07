@@ -5,4 +5,6 @@ export class UserDto {
   readonly username: string;
   @IsNotEmpty()
   readonly password: string;
+  
+  readonly roles: string;
 }
