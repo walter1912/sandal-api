@@ -10,6 +10,7 @@ import {
   Req,
   Res,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { Query as QueryExpress } from 'express-serve-static-core';
 
@@ -22,6 +23,7 @@ import { Public } from 'config/decorations/public.decorator';
 import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { Roles } from 'config/decorations/roles.decorator';
 import { Role } from 'config/enums/role.enum';
+import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
 
 @Controller('customers')
 export class CustomersController {
@@ -58,15 +60,27 @@ export class CustomersController {
     }
   }
   // @Roles(Role.Admin or cùng là 1 user)
+  // @UseGuards(CustomerCreatedGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string, @Res() res: ResExpress) {
+  async findOne(@Param() params, @Res() res: ResExpress) {
+    const {id} = params;
     const customer = await this.customersService.findById(id);
     res.status(200).json({
       message: 'Lấy thông tin customer thành công',
       customer,
     });
   }
+  @Get(':id')
+  async findByUsername(@Param() params, @Res() res: ResExpress) {
+    const {username} = params;
+    const customer = await this.customersService.findByUsername(username);
+    res.status(200).json({
+      message: 'Lấy thông tin customer thành công',
+      customer,
+    });
+  }
   // @Roles( cùng là 1 user)
+  @UseGuards(CustomerCreatedGuard)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -83,6 +97,7 @@ export class CustomersController {
     });
   }
   // @Roles( cùng là 1 user)
+  @UseGuards(CustomerCreatedGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() res: ResExpress) {
     const customer = await this.customersService.deleteById(id);

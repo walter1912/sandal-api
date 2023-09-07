@@ -5,10 +5,11 @@ import {
   HttpCode,
   HttpStatus,
   UseFilters,
-  Req,
   Res,
   Request,
   Delete,
+  Body,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto } from './dto/user.dto';
@@ -18,6 +19,7 @@ import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { Public } from 'config/decorations/public.decorator';
 import { Roles } from 'config/decorations/roles.decorator';
 import { Role } from 'config/enums/role.enum';
+import { UserChangeDto } from './dto/user-change.dto';
 
 @UseFilters(new HttpExceptionFilter())
 @Controller('auth')
@@ -27,8 +29,8 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async signIn(@Req() req: ReqExpress, @Res() res: ResExpress) {
-    const userDto: UserDto = req.body;
+  async signIn(@Body() body, @Res() res: ResExpress) {
+    const userDto: UserDto = body;
     const { token } = await this.authService.signIn(userDto);
     if (token)
       res.status(200).json({
@@ -36,10 +38,21 @@ export class AuthController {
         token,
       });
   }
+  @HttpCode(HttpStatus.OK)
+  @Post('change')
+  async changePassword(@Body() body, @Res() res: ResExpress) {
+    const userChangeDto: UserChangeDto = body;
+    const { token } = await this.authService.changePassword(userChangeDto);
+    if (token)
+      res.status(200).json({
+        message: 'Đổi mật khẩu thành công',
+        token,
+      });
+  }
   @Public()
   @Post('register')
-  async register(@Req() req: ReqExpress, @Res() res: ResExpress) {
-    const registerDto: UserRegsiterDto = req.body;
+  async register(@Body() body, @Res() res: ResExpress) {
+    const registerDto: UserRegsiterDto = body;
     const { token } = await this.authService.register(registerDto);
     if (token)
       res.status(201).json({
@@ -57,9 +70,9 @@ export class AuthController {
   }
   @Roles(Role.Admin)
   @Delete('users/:id')
-  async deleteById(@Req() req: ReqExpress, @Res() res: ResExpress) {
+  async deleteById(@Param() params, @Res() res: ResExpress) {
     try {
-      const { id } = req.params;
+      const { id } = params;
       await this.authService.deleteUser(id);
       res.status(200).json({
         message: 'Xoá user thành công',

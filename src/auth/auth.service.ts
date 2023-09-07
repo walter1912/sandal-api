@@ -75,12 +75,16 @@ export class AuthService {
     const userDto: UserDto = { username, password: oldPassword };
     const { userExisted } = await this.checkUserExist(userDto);
     if (userExisted) {
-      const putUser: UserDto = { ...userExisted, password: newPassword };
+      const salt = await bcrypt.genSalt(10);
+      const hashed = await bcrypt.hash(newPassword, salt);
+      const putUser: UserDto = { username , password: hashed };
       const id = userExisted._id;
       const newUser = await this.userModel.findByIdAndUpdate(id, putUser, {
         new: true,
         runValidators: true,
       });
+      console.log("newUser: ", newUser);
+      
       token = await this.createToken(newUser);
     }
     return { token };

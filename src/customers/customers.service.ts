@@ -69,15 +69,28 @@ export class CustomersService {
     return customer;
   }
 
+  async findByUsername(username: string): Promise<Customer> {
+    const customer = await this.customerModel.findOne({ username });
+    if (!customer) {
+      throw new NotFoundException('Không tìm thấy customer!');
+    }
+    return customer;
+  }
+
   async updateById(
     id: string,
     updateCustomerDto: UpdateCustomerDto,
   ): Promise<Customer> {
-    const existed = await this.findById(id);
+    const existed: Customer = await this.findById(id);
+    const existedDto: CreateCustomerDto = existed;
     const customer = {
-      ...existed,
-      updateCustomerDto,
+      existedDto,
+      ...updateCustomerDto,
+      username: existedDto.username,
+      email: existedDto.email,
+      phone: existedDto.phone,
     };
+    
     return await this.customerModel.findByIdAndUpdate(id, customer, {
       new: true,
       runValidators: true,
