@@ -9,10 +9,10 @@ export type ReviewDocument = HydratedDocument<Review>;
   timestamps: true,
 })
 export class Review {
-  @Prop({ type: { ref: CustomerSchema }, required: true }) // Định nghĩa kiểu dữ liệu là ObjectId
-  idCustomer: ObjectId;
-  @Prop({ type: { ref: ProductSchema }, required: true }) // Định nghĩa kiểu dữ liệu là ObjectId
-  idProduct: ObjectId;
+  @Prop({ required: true }) // Định nghĩa kiểu dữ liệu là ObjectId
+  idCustomer: string;
+  @Prop({ required: true }) // Định nghĩa kiểu dữ liệu là ObjectId
+  idProduct: string;
   @Prop({ required: true })
   content: string;
 }

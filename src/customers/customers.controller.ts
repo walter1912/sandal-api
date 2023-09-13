@@ -19,10 +19,14 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
+import { ReviewsService } from 'src/products/reviews/reviews.service';
 
 @Controller('customers')
 export class CustomersController {
-  constructor(private readonly customersService: CustomersService) {}
+  constructor(
+    private readonly customersService: CustomersService,
+    private readonly reviewsService: ReviewsService,
+  ) {}
 
   // @Public()
   // @Post()
@@ -58,7 +62,7 @@ export class CustomersController {
   // @UseGuards(CustomerCreatedGuard)
   @Get(':id')
   async findOne(@Param() params, @Res() res: ResExpress) {
-    const {id} = params;
+    const { id } = params;
     const customer = await this.customersService.findById(id);
     res.status(200).json({
       message: 'Lấy thông tin customer thành công',
@@ -67,7 +71,7 @@ export class CustomersController {
   }
   @Get(':id')
   async findByUsername(@Param() params, @Res() res: ResExpress) {
-    const {username} = params;
+    const { username } = params;
     const customer = await this.customersService.findByUsername(username);
     res.status(200).json({
       message: 'Lấy thông tin customer thành công',
@@ -100,5 +104,20 @@ export class CustomersController {
       message: 'Xóa customer thành công',
       customer,
     });
+  }
+
+  // thao tác với reviews
+
+  @Get(':id/reviews')
+  async getAllReviewsByCustomer(
+    @Param('id') id: string,
+    @Res() res: ResExpress,
+  ) {
+    const idCustomer = id;
+    const reviews = await this.reviewsService.getReviewsByIdCustomer(idCustomer);
+    res.status(200).json({
+      message:'Lấy tất cả reviews của khách hàng thành công',
+      reviews: reviews
+    })
   }
 }

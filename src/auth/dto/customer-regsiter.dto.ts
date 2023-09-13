@@ -1,6 +1,6 @@
 import {  IsDateString, IsEmail, IsNotEmpty} from 'class-validator';
 
-export class UserRegsiterDto {
+export class CustomerRegisterDto {
   @IsNotEmpty()
   readonly username: string;
   @IsNotEmpty()
@@ -17,4 +17,6 @@ export class UserRegsiterDto {
   readonly dob: string;
   readonly gender: string;
   readonly roles: string;
+  readonly type: Number;
+
 }

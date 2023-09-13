@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ReviewsService } from './reviews/reviews.service';
 import { RatesService } from './rates/rates.service';
 
@@ -13,12 +13,13 @@ import { RolesGuard } from 'src/middlewares/guards/roles.guard';
 
 @Module({
   imports: [
-    CustomersModule,  
+    forwardRef(() => CustomersModule),
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
-    MongooseModule.forFeature([{ name: Rate.name, schema: RateSchema }]),
+    // MongooseModule.forFeature([{ name: Rate.name, schema: RateSchema }]),
   ],
-  providers: [ReviewsService, RatesService, ProductsService],
-  controllers: [ProductsController]
+  controllers: [ProductsController],
+  providers: [ReviewsService, ProductsService],
+  exports: [ReviewsService, ProductsModule],
 })
 export class ProductsModule {}

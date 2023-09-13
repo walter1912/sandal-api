@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   Query,
-  Req,
+  Request,
   Res,
   Put,
   UseGuards,
@@ -22,10 +22,16 @@ import { Public } from 'config/decorations/public.decorator';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { RolesGuard } from 'src/middlewares/guards/roles.guard';
+import { CreateReviewDto } from './reviews/dto/create-review.dto';
+import { ReviewsService } from './reviews/reviews.service';
+import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private productsService: ProductsService,
+    private reviewsService: ReviewsService,
+  ) {}
 
   @Post()
   @Roles(Role.Admin)
@@ -44,10 +50,14 @@ export class ProductsController {
 
   @Public()
   @Get()
-  async findAndSearchByNamePaginate(@Query() query: QueryExpress, @Res() res: ResExpress) {
-    const products = await this.productsService.findAndSearchByNamePaginate(query);
+  async findAndSearchByNamePaginate(
+    @Query() query: QueryExpress,
+    @Res() res: ResExpress,
+  ) {
+    const products =
+      await this.productsService.findAndSearchByNamePaginate(query);
     let message = 'Lấy danh sách sản phẩm ';
-    if(query.name) {
+    if (query.name) {
       message += 'theo tên ';
     }
     if (products.length > 0) {
@@ -64,7 +74,10 @@ export class ProductsController {
   }
   @Public()
   @Get('elements')
-  async searchByElementPaginate(@Query()query: QueryExpress, @Res() res: ResExpress) {
+  async searchByElementPaginate(
+    @Query() query: QueryExpress,
+    @Res() res: ResExpress,
+  ) {
     const products = await this.productsService.searchByElementPaginate(query);
     if (products.length > 0) {
       res.status(200).json({
@@ -107,10 +120,7 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
     @Res() res: ResExpress,
   ) {
-    const product = await this.productsService.updateById(
-      id,
-      updateProductDto,
-    );
+    const product = await this.productsService.updateById(id, updateProductDto);
     res.status(200).json({
       message: 'Cập nhật sản phẩm thành công',
       product,
@@ -118,12 +128,69 @@ export class ProductsController {
   }
   @Roles(Role.Admin)
   @UseGuards(RolesGuard)
-  @Delete(':id')
+  @Delete(':id')  
   async deleteById(@Param('id') id: string, @Res() res: ResExpress) {
     const product = await this.productsService.deleteById(id);
     res.status(200).json({
       message: 'Xóa sản phẩm thành công',
       product,
     });
+  }
+
+  // các route liên quan đến review, sử dụng reviewsService
+  // chỉ cần là khách hàng là có thể truy cập
+  // @UseGuards(CustomerCreatedGuard)
+  @Post(':id/reviews')
+  async createReview(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body,
+    @Res() res: ResExpress,
+  ) {
+    const idCustomer = req.user.id;
+    console.log("idCustomer: ", idCustomer);
+    // 65019478cac0089082e06adb
+    // 65019478cac0089082e06adb
+    const idProduct = id;
+    console.log("idProduct: ", idProduct);
+    
+    const createReviewDto: CreateReviewDto = {
+      idCustomer,
+      idProduct,
+      content: body.content,
+    };
+    const review = await this.reviewsService.create(createReviewDto);
+    res.status(200).json({
+      message: 'Tạo review thành công',
+      review: review,
+    });
+  }
+  @Get(':id/reviews')
+  async getReviewsByIdProduct(
+    @Query() query: QueryExpress,
+    @Param('id') id: string,
+    @Res() res: ResExpress,
+  ) {
+    let limit = query.limit ? Number(query.limit) : 0;
+    console.log("limit: ", limit);
+    let idProduct = id;
+    const reviews = await this.reviewsService.getReviewsByIdProduct(idProduct, limit);
+    res.status(200).json({
+      message:'Lấy các review của sản phẩm thành công',
+      reviews: reviews
+    })
+  }
+
+  @UseGuards(CustomerCreatedGuard)
+  @Delete(':id/reviews/:idReview')
+  async remove(
+    @Param() params,
+    @Res() res: ResExpress,
+  ) {
+    let {idReview} = params;
+    const review = this.reviewsService.remove(idReview);
+    res.status(200).json({
+      message:'Xóa thành công review'
+    })
   }
 }

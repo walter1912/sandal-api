@@ -9,6 +9,8 @@ export type CustomerDocument = HydratedDocument<Customer>;
 export class Customer {
   @Prop({ unique: [true, "Username của khách hàng đã tồn tại"] })
   username: string;
+  @Prop({required: true})
+  password: string;
   @Prop({ required: true })
   name: string;
   @Prop({ required: true })

@@ -5,8 +5,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Customer } from './schema/customer.schema';
 import { Model, isValidObjectId } from 'mongoose';
@@ -16,8 +14,8 @@ export class CustomersService {
   constructor(
     @InjectModel(Customer.name) private customerModel: Model<Customer>,
   ) {}
-
-  async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
+  // CustomerRegisterDto
+  async create(createCustomerDto): Promise<Customer> {
     console.log('This action adds a new customer');
     const existed = await this.customerModel.findOne({
       username: createCustomerDto.username,
@@ -76,21 +74,27 @@ export class CustomersService {
     }
     return customer;
   }
-
-  async updateById(
-    id: string,
-    updateCustomerDto: UpdateCustomerDto,
-  ): Promise<Customer> {
+  async changePassword(id: string, passwordHashed): Promise<Customer> {
     const existed: Customer = await this.findById(id);
-    const existedDto: CreateCustomerDto = existed;
     const customer = {
-      existedDto,
-      ...updateCustomerDto,
-      username: existedDto.username,
-      email: existedDto.email,
-      phone: existedDto.phone,
+      existed,
+      password: passwordHashed,
     };
-    
+    return await this.customerModel.findByIdAndUpdate(id, customer, {
+      new: true,
+      runValidators: true,
+    });
+  }
+  async updateById(id: string, updateCustomerDto): Promise<Customer> {
+    const existed: Customer = await this.findById(id);
+    const customer = {
+      existed,
+      ...updateCustomerDto,
+      username: existed.username,
+      email: existed.email,
+      phone: existed.phone,
+    };
+
     return await this.customerModel.findByIdAndUpdate(id, customer, {
       new: true,
       runValidators: true,
