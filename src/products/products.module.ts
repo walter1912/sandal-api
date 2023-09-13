@@ -16,10 +16,10 @@ import { RolesGuard } from 'src/middlewares/guards/roles.guard';
     forwardRef(() => CustomersModule),
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
-    // MongooseModule.forFeature([{ name: Rate.name, schema: RateSchema }]),
+    MongooseModule.forFeature([{ name: Rate.name, schema: RateSchema }]),
   ],
   controllers: [ProductsController],
-  providers: [ReviewsService, ProductsService],
+  providers: [ReviewsService, RatesService, ProductsService],
   exports: [ReviewsService, ProductsModule],
 })
 export class ProductsModule {}

@@ -25,12 +25,15 @@ import { RolesGuard } from 'src/middlewares/guards/roles.guard';
 import { CreateReviewDto } from './reviews/dto/create-review.dto';
 import { ReviewsService } from './reviews/reviews.service';
 import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
+import { RatesService } from './rates/rates.service';
+import { CreateRateDto } from './rates/dto/create-rate.dto';
 
 @Controller('products')
 export class ProductsController {
   constructor(
     private productsService: ProductsService,
     private reviewsService: ReviewsService,
+    private ratesService: RatesService,
   ) {}
 
   @Post()
@@ -128,7 +131,7 @@ export class ProductsController {
   }
   @Roles(Role.Admin)
   @UseGuards(RolesGuard)
-  @Delete(':id')  
+  @Delete(':id')
   async deleteById(@Param('id') id: string, @Res() res: ResExpress) {
     const product = await this.productsService.deleteById(id);
     res.status(200).json({
@@ -148,12 +151,12 @@ export class ProductsController {
     @Res() res: ResExpress,
   ) {
     const idCustomer = req.user.id;
-    console.log("idCustomer: ", idCustomer);
+    console.log('idCustomer: ', idCustomer);
     // 65019478cac0089082e06adb
     // 65019478cac0089082e06adb
     const idProduct = id;
-    console.log("idProduct: ", idProduct);
-    
+    console.log('idProduct: ', idProduct);
+
     const createReviewDto: CreateReviewDto = {
       idCustomer,
       idProduct,
@@ -172,25 +175,61 @@ export class ProductsController {
     @Res() res: ResExpress,
   ) {
     let limit = query.limit ? Number(query.limit) : 0;
-    console.log("limit: ", limit);
+    console.log('limit: ', limit);
     let idProduct = id;
-    const reviews = await this.reviewsService.getReviewsByIdProduct(idProduct, limit);
+    const reviews = await this.reviewsService.getReviewsByIdProduct(
+      idProduct,
+      limit,
+    );
     res.status(200).json({
-      message:'Lấy các review của sản phẩm thành công',
-      reviews: reviews
-    })
+      message: 'Lấy các review của sản phẩm thành công',
+      reviews: reviews,
+    });
   }
 
   @UseGuards(CustomerCreatedGuard)
   @Delete(':id/reviews/:idReview')
-  async remove(
-    @Param() params,
-    @Res() res: ResExpress,
-  ) {
-    let {idReview} = params;
+  async remove(@Param() params, @Res() res: ResExpress) {
+    let { idReview } = params;
     const review = this.reviewsService.remove(idReview);
     res.status(200).json({
-      message:'Xóa thành công review'
+      message: 'Xóa thành công review',
+    });
+  }
+
+  // các route liên quan đến rate, sử dụng ratesService
+  @Post(':id/rates')
+  async createRate(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body,
+    @Res() res: ResExpress,
+  ) {
+    const idCustomer = req.user.id;
+    const idProduct = id;
+    const star = Number(body.star);  
+    const createRateDto: CreateRateDto = {
+      idCustomer,
+      idProduct,
+      star,
+    };
+    let rate = await this.ratesService.create(createRateDto);
+    res.status(201).json({
+      message: 'Baạn đã đánh giá số sao thành công',
+      rate: rate,
+    });
+  }
+
+  @Get(':id/rates')
+  async getRateProduct(
+    @Param('id') id: string,
+    @Res() res: ResExpress,
+  ) {
+    const idProduct = id;
+    let star = await this.ratesService.getRateProduct(idProduct);
+    res.status(200).json({
+      rate: star
     })
   }
+
 }
