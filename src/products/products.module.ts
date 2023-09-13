@@ -20,6 +20,6 @@ import { RolesGuard } from 'src/middlewares/guards/roles.guard';
   ],
   controllers: [ProductsController],
   providers: [ReviewsService, RatesService, ProductsService],
-  exports: [ReviewsService, ProductsModule],
+  exports: [ReviewsService,ProductsService, ProductsModule],
 })
 export class ProductsModule {}

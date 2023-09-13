@@ -14,6 +14,7 @@ import { ValidationPipe } from './middlewares/pipes/validation.pipe';
 import { AuthModule } from './auth/auth.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProductsModule } from './products/products.module';
+import { CartModule } from './cart/cart.module';
 // kết nối với mongoDB
 
 @Module({
@@ -22,7 +23,8 @@ import { ProductsModule } from './products/products.module';
     MongooseModule.forRoot('mongodb://localhost:27017/sandal-database?retryWrites=true&w=majority'),
     CustomersModule,  
     AuthModule,
-    ProductsModule,  
+    ProductsModule,
+    CartModule,  
   ],
   controllers: [AppController],
   providers: [
