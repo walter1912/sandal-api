@@ -13,9 +13,11 @@ export class ProductCart {
   idProduct: string;
   @Prop({ required: true })
   quantity: number;
+  @Prop()
   coupon: string;
   @Prop({ required: true })
   price: number;
+  @Prop()
   isBought: boolean;
 }
 export const ProductCartSchema = SchemaFactory.createForClass(ProductCart);

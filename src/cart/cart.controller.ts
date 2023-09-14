@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { Query as QueryExpress } from 'express-serve-static-core';
@@ -14,8 +15,10 @@ import { Query as QueryExpress } from 'express-serve-static-core';
 import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { CreateProductCartDto } from './dto/create-productCart.dto';
 import { UpdateProductCartDto } from './dto/update-productCart.dto';
+import { CustomerCartGuard } from 'src/middlewares/guards/customer-cart.guard';
 
 @Controller('cart')
+@UseGuards(CustomerCartGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
   // get 'cart/:idCustomer'
@@ -46,7 +49,7 @@ export class CartController {
     });
   }
   // get 'cart/:idItem'
-  @Get(':idItem')
+  @Get('items/:idItem')
   async getById(@Param() params, @Res() res: ResExpress) {
     const { idItem } = params;
     const productCart = await this.cartService.findById(idItem);
@@ -56,7 +59,7 @@ export class CartController {
     });
   }
   // put 'cart/:idItem'
-  @Put(':idItem')
+  @Put('items/:idItem')
   async updateItemCart(@Param() params, @Body() body, @Res() res: ResExpress) {
     const { idItem } = params;
     const updateProductCartDto: UpdateProductCartDto = { ...body };
@@ -70,7 +73,7 @@ export class CartController {
     });
   }
   // delete 'cart/:idItem'
-  @Delete(':idItem')
+  @Delete('items/:idItem')
   async deleteItemCart(@Param() params, @Res() res: ResExpress) {
     const { idItem } = params;
     const productCart = await this.cartService.delete(idItem);

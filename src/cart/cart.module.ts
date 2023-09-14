@@ -17,11 +17,7 @@ import { APP_GUARD } from '@nestjs/core';
     ]),
   ],
   providers: [
-    CartService,
-    {
-      provide: APP_GUARD,
-      useClass: CustomerCartGuard,
-    },
+    CartService
   ],
   controllers: [CartController],
   exports: [CartService, CartModule],
