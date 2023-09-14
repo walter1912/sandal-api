@@ -32,6 +32,8 @@ export class CartService {
     if (product.stock < quantity) {
       throw new BadRequestException('Vượt quá số lượng của kho');
     }
+    let total = quantity * product.cost;
+    createProductCartDto.price = total;
     const productCart = await new this.cartModel(createProductCartDto).save();
     return productCart;
   }
@@ -69,5 +71,33 @@ export class CartService {
   async delete(id) {
     await this.findById(id);
     return await this.cartModel.findByIdAndDelete(id);
+  }
+
+  // các thao tác liên quan tới billModule
+  async addProductCartToBill(idProductCart: string, idBill: string) {
+    const existed = await this.findById(idProductCart);
+    const productBill = {
+      existed,
+      idBill: idBill,
+    };
+    return await this.cartModel.findByIdAndUpdate(idProductCart, productBill, {
+      new: true,
+    });
+  }
+  async findProductBillByIdBill(idBill: string) {
+    if (!isValidObjectId(idBill)) {
+      throw new BadRequestException('Bạn nhập sai id Bill!');
+    }
+    return await this.cartModel.find({ idBill });
+  }
+  async updateProductBought(idProductCart: string) {
+    const productBill = await this.cartModel.findById(idProductCart);
+    const bought = {
+      productBill,
+      isBought: true,
+    };
+    return await this.cartModel.findByIdAndUpdate(idProductCart, bought, {
+      new: true,
+    });
   }
 }

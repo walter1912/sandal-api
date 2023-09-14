@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, ObjectId } from 'mongoose';
+import { Date, HydratedDocument, ObjectId } from 'mongoose';
 
 export type ReviewDocument = HydratedDocument<ProductCart>;
 
@@ -17,6 +17,10 @@ export class ProductCart {
   coupon: string;
   @Prop({ required: true })
   price: number;
+
+  @Prop()
+  idBill: string;
+
   @Prop()
   isBought: boolean;
 }
