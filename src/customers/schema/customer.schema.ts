@@ -4,12 +4,12 @@ import { HydratedDocument } from 'mongoose';
 export type CustomerDocument = HydratedDocument<Customer>;
 
 @Schema({
-  timestamps: true
+  timestamps: true,
 })
 export class Customer {
-  @Prop({ unique: [true, "Username của khách hàng đã tồn tại"] })
+  @Prop({ unique: [true, 'Username của khách hàng đã tồn tại'] })
   username: string;
-  @Prop({required: true})
+  @Prop({ required: true })
   password: string;
   @Prop({ required: true })
   name: string;
@@ -23,8 +23,6 @@ export class Customer {
   dob: string;
   @Prop()
   gender: string;
-  @Prop()
-  type: number;
   @Prop()
   role: string;
 }

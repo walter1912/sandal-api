@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Bill, BillSchema } from './schema/bill.schema';
 import { CartModule } from 'src/cart/cart.module';
 import { CustomersModule } from 'src/customers/customers.module';
+import { StatisticBillService } from './statistic-bills.service';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { CustomersModule } from 'src/customers/customers.module';
     forwardRef(() => CartModule),
     MongooseModule.forFeature([{ name: Bill.name, schema: BillSchema }]),
   ],
-  providers: [BillsService],
+  providers: [BillsService, StatisticBillService],
   controllers: [BillsController],
+  exports : [BillsModule, StatisticBillService]
 })
 export class BillsModule {}
