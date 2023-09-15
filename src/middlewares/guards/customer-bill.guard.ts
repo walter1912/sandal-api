@@ -4,30 +4,20 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CartService } from 'src/cart/cart.service';
+import { BillsService } from 'src/bills/bills.service';
 import { CustomersService } from 'src/customers/customers.service';
 
 @Injectable()
-export class CustomerCartGuard implements CanActivate {
+export class CustomerBillGuard implements CanActivate {
   constructor(
     private readonly customerService: CustomersService,
-    private readonly cartService: CartService,
+    private readonly billsService: BillsService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const currentUser = request['user'];
-    console.log('user cus guard: ', currentUser);
     if (!currentUser) {
-      throw new UnauthorizedException(
-        'Khách hàng không có quyền tương tác giỏ hàng này!',
-      );
-    }
-
-    if (request.params.idItem) {
-      const idProductCart = request.params.idItem;
-      const productCart = await this.cartService.findById(idProductCart);
-      if (productCart.idCustomer === currentUser.id) return true;
       throw new UnauthorizedException(
         'Khách hàng không có quyền tương tác giỏ hàng này!',
       );
@@ -37,12 +27,21 @@ export class CustomerCartGuard implements CanActivate {
       const customerId = request.params.idCustomer;
       if (customerId) {
         const customer = await this.customerService.findById(customerId);
-        if (customer.username === currentUser.username) return true;
-      }
+        if (customer.username !== currentUser.username) {
+          throw new UnauthorizedException(
+            'Khách hàng không có quyền tương tác bill này!',
+          );
+        }
+        if(!request.params.idBill) return true;
+      } 
     }
-
-    throw new UnauthorizedException(
-      'Khách hàng không có quyền tương tác giỏ hàng này!',
-    );
+    if (request.params.idBill) {
+      const idBill = request.params.idBill;
+      const bill = await this.billsService.findById(idBill);
+      if (bill.idCustomer === currentUser.id) return true;
+      throw new UnauthorizedException(
+        'Khách hàng không có quyền tương tác bill này!',
+      );
+    }
   }
 }

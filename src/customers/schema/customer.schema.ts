@@ -21,7 +21,11 @@ export class Customer {
   address: string;
   @Prop({ required: true })
   dob: string;
+  @Prop()
   gender: string;
+  @Prop()
   type: number;
+  @Prop()
+  role: string;
 }
 export const CustomerSchema = SchemaFactory.createForClass(Customer);

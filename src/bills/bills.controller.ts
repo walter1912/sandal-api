@@ -13,12 +13,10 @@ import { Query as QueryExpress } from 'express-serve-static-core';
 
 import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { PrepareBill } from './dto/prepare-bill.dto';
-import { CustomerCartGuard } from 'src/middlewares/guards/customer-cart.guard';
-import { Bill } from './schema/bill.schema';
-import { SaveBill } from './dto/save-bill.dto';
+import { CustomerBillGuard } from 'src/middlewares/guards/customer-bill.guard';
 
 @Controller('bills')
-@UseGuards(CustomerCartGuard)
+@UseGuards(CustomerBillGuard)
 export class BillsController {
   constructor(private readonly billsService: BillsService) {}
 
@@ -37,14 +35,14 @@ export class BillsController {
     const pendingBill = await this.billsService.createPendingBill(prepareBill);
     res.status(200).json({
       message: 'Tạo hóa đơn vào hàng đợi thành công',
+      messageCoupons: pendingBill.messageCoupons,
       bill: pendingBill,
     });
   }
   @Post('customers/:idCustomer/save/:idBill')
-  async createSaveBill(@Body() body, @Param() params, @Res() res: ResExpress) {
+  async createSaveBill(@Param() params, @Res() res: ResExpress) {
     const { idBill } = params;
-    const saveBill: SaveBill = body;
-    const bill = await this.billsService.createSaveBill(idBill, saveBill);
+    const bill = await this.billsService.createSaveBill(idBill);
     res.status(200).json({
         message: 'Tạo hóa đơn thành công',
         bill

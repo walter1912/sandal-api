@@ -8,20 +8,21 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CustomerCartGuard } from 'src/middlewares/guards/customer-cart.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { BillsModule } from 'src/bills/bills.module';
+import { CartToBillService } from './cart-to-bill.service';
+import { CouponsModule } from 'src/coupons/coupons.module';
 
 @Module({
   imports: [
     CustomersModule,
     ProductsModule,
+    CouponsModule,
     forwardRef(() => BillsModule),
     MongooseModule.forFeature([
       { name: ProductCart.name, schema: ProductCartSchema },
     ]),
   ],
-  providers: [
-    CartService
-  ],
+  providers: [CartService, CartToBillService],
   controllers: [CartController],
-  exports: [CartService, CartModule],
+  exports: [CartService, CartToBillService, CartModule],
 })
 export class CartModule {}

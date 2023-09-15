@@ -23,5 +23,6 @@ export class ProductCart {
 
   @Prop()
   isBought: boolean;
+  messageCoupon: string;
 }
 export const ProductCartSchema = SchemaFactory.createForClass(ProductCart);

@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Bill } from './schema/bill.schema';
 import { Model, isValidObjectId } from 'mongoose';
 import { PrepareBill } from './dto/prepare-bill.dto';
-import { CartService } from 'src/cart/cart.service';
+import { CartToBillService } from 'src/cart/cart-to-bill.service';
 import { ProductCart } from 'src/cart/schema/product-cart.shema';
 import { SaveBill } from './dto/save-bill.dto';
 
@@ -15,7 +15,7 @@ import { SaveBill } from './dto/save-bill.dto';
 export class BillsService {
   constructor(
     @InjectModel(Bill.name) private billModel: Model<Bill>,
-    private cartService: CartService,
+    private cartToBillService: CartToBillService,
   ) {}
 
   async findById(id: String): Promise<Bill> {
@@ -28,8 +28,9 @@ export class BillsService {
     }
     return existed;
   }
-  async createPendingBill(prepareBill: PrepareBill): Promise<Bill> {
+  async createPendingBill(prepareBill: PrepareBill) {
     const { productCarts, ...createBill } = prepareBill;
+    let messageCoupons = [];
     let statePay = 'empty';
     if (productCarts.length > 0) {
       statePay = 'pending';
@@ -43,20 +44,23 @@ export class BillsService {
     if (productCarts.length > 0) {
       for (let i = 0; i < productCarts.length; i++) {
         let id = String(productCarts[i]);
-        let productBill = await this.cartService.addProductCartToBill(
+        let productBill = await this.cartToBillService.addProductCartToBill(
           id,
           bill.id,
         );
+        messageCoupons.push(productBill.messageCoupon)
         total = this.calculatingPriceProductCart(total, productBill);
       }
     }
     bill.total = total;
-    return await this.billModel.findByIdAndUpdate(bill.id, bill, { new: true });
+    let result = await this.billModel.findByIdAndUpdate(bill.id, bill, { new: true });
+    result.messageCoupons = messageCoupons;
+    return result;
   }
 
-  async createSaveBill(id: string, preSaveBill: SaveBill) {
+  async createSaveBill(id: string) {
     const saveBill = await this.findById(id);
-   
+
     saveBill.total = this.calculatingTotalCost(saveBill.total, saveBill);
     saveBill.statePay = 'shipping';
     return await this.billModel.findByIdAndUpdate(id, saveBill, { new: true });

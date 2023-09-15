@@ -84,7 +84,7 @@ export class AuthService {
   }
 
   async createToken(user): Promise<string> {
-    let roles = user.roles ? user.roles : '2';
+    let role = user.role ? user.role : '2';
 
     let id = await user.id.toString();
     // console.log('strId: ', strId);
@@ -92,7 +92,7 @@ export class AuthService {
     // let id: string = strId.substring(0, strId.length - 1) + String(intId);
     console.log('user._id: ', await user);
 
-    const payload = { id, username: user.username, roles };
+    const payload = { id, username: user.username, role };
     let access_token = await this.jwtService.signAsync(payload);
     return access_token;
   }

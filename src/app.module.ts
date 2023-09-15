@@ -16,6 +16,7 @@ import { CustomersModule } from './customers/customers.module';
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
 import { BillsModule } from './bills/bills.module';
+import { CouponsModule } from './coupons/coupons.module';
 // kết nối với mongoDB
 
 @Module({
@@ -26,7 +27,8 @@ import { BillsModule } from './bills/bills.module';
     AuthModule,
     ProductsModule,
     CartModule,
-    BillsModule,  
+    BillsModule,
+    CouponsModule,  
   ],
   controllers: [AppController],
   providers: [

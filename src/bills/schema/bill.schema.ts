@@ -36,5 +36,6 @@ export class Bill {
   //   tiền mặt hoặc chuyển khoản qua đâu: ngân hàng, momo, ...
   @Prop()
   typePay: string;
+  messageCoupons: string[];
 }
 export const BillSchema = SchemaFactory.createForClass(Bill);
