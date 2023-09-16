@@ -11,4 +11,5 @@ export class CouponDto {
   start: Date;
   @IsDate()
   end: Date;
+  countUsed: number;
 }

@@ -7,18 +7,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Coupon } from './schema/coupon.schema';
 import { Model, isValidObjectId, model } from 'mongoose';
 import { CouponDto } from './dto/coupon.dto';
+import { isNumber } from 'class-validator';
 
 @Injectable()
 export class CouponsService {
   constructor(@InjectModel(Coupon.name) private couponModel: Model<Coupon>) {}
 
-//   conditions
+  //   conditions
   async getAll() {
     return await this.couponModel.find().exec();
   }
   async findOneByCode(code: string) {
-    const existed = await this.couponModel.findOne({code})
-    if(!existed) {
+    const existed = await this.couponModel.findOne({ code });
+    if (!existed) {
       return new Coupon();
       // throw new NotFoundException('Không tìm thấy mã giảm giá');
     }
@@ -54,5 +55,16 @@ export class CouponsService {
   async delete(id: string) {
     await this.findById(id);
     return await this.couponModel.findByIdAndDelete(id);
+  }
+
+  // tăng thêm 1 lượt sử dụng khi coupon được tìm thấy ở trong 1 sản phẩm khi được thêm vào bill
+  async addOneUsed(code) {
+    let existed = await this.couponModel.findOne({ code });
+    if (isNumber(existed.countUsed)) {
+      existed.countUsed += 1;
+    } else existed.countUsed = 1;
+    const updated = await this.couponModel.findOneAndUpdate({ code }, existed, {
+      new: true,
+    });
   }
 }

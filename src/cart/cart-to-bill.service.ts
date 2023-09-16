@@ -21,9 +21,13 @@ export class CartToBillService {
       updatePrice,
       idBill: idBill,
     };
-    let result =  await this.cartModel.findByIdAndUpdate(idProductCart, productBill, {
-      new: true,
-    });
+    let result = await this.cartModel.findByIdAndUpdate(
+      idProductCart,
+      productBill,
+      {
+        new: true,
+      },
+    );
     result.messageCoupon = updatePrice.messageCoupon;
 
     return result;
@@ -63,6 +67,7 @@ export class CartToBillService {
         coupon.start.getTime() < today.getTime() &&
         coupon.end.getTime() > today.getTime()
       ) {
+        await this.couponsService.addOneUsed(code);
         if (coupon.maxDiscount > maxDiscout) {
           maxDiscout = coupon.maxDiscount;
         }

@@ -25,6 +25,9 @@ export class Coupon {
 
   @Prop({ required: true })
   end: Date;
+// số lượt sử dụng
+  @Prop()
+  countUsed: number;
 }
 
 export const CouponSchema = SchemaFactory.createForClass(Coupon);
