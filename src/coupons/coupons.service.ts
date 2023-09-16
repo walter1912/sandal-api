@@ -18,9 +18,9 @@ export class CouponsService {
     return await this.couponModel.find().exec();
   }
   async findOneByCode(code: string) {
-    const existed = await this.couponModel.findOne({ code });
+    const existed = await this.couponModel.findOne({ code }).exec();
     if (!existed) {
-      return new Coupon();
+      return await new Coupon();
       // throw new NotFoundException('Không tìm thấy mã giảm giá');
     }
     return existed;

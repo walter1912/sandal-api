@@ -11,6 +11,7 @@ import { StatsticCustomersService } from 'src/customers/statistic-customers.serv
 import { SettingDto } from './dtos/setting.dto';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { Coupon } from 'src/coupons/schema/coupon.schema';
+import { isString } from 'class-validator';
 /*
 -	0 là newbie 
 -	Trên 0 tới 1 tr là bronze 
@@ -27,6 +28,9 @@ export class SettingService {
     private readonly couponsService: CouponsService,
   ) {}
 
+  // phần xử lý của admin
+
+  // phần cài đặt: post, put
   async setTypeAndCouponAllCustomer() {
     const listIdCustomer = await this.statsticCustomers.getAllIdCustomer();
     listIdCustomer.forEach(async (idCustomer) => {
@@ -36,8 +40,6 @@ export class SettingService {
           await this.statisticBillService.getAllTotalPayByIdCustomer(
             idCustomer,
           );
-          console.log('total: ', total);
-          
         let type = 'newbie';
         let coupon = '';
         if (total > 0) {
@@ -61,7 +63,23 @@ export class SettingService {
       }
     });
   }
+  async addCouponforOneCustomer(idCustomer: string, codes: string[]) {
+    let existed = await this.findByIdCustomer(idCustomer);
+    if (!isString(existed.coupons)) {
+      existed.coupons = '';
+    }
+    codes.forEach((code) => (existed.coupons += ',' + code.trim()));
 
+    console.log('existed.coupons: ', existed.coupons);
+
+    const updated = await this.settingModel.findOneAndUpdate(
+      { idCustomer },
+      existed,
+      { new: true },
+    );
+    return updated;
+  }
+  // admin tìm kiếm thông tin
   async findByIdCustomer(idCustomer: string): Promise<Setting> {
     if (!isValidObjectId(idCustomer)) {
       throw new BadRequestException('id customer bi sai');
@@ -73,18 +91,24 @@ export class SettingService {
     return setting;
   }
 
-  async getAllCouponOfCustomer(idCustomer: string): Promise<Coupon[]> {
+  // phần thuộc quyền của customer
+  async getAllCouponOfCustomer(idCustomer: string) {
     const setting = await this.findByIdCustomer(idCustomer);
-    const { coupons } = setting;
+    let { coupons } = setting;
     let listCoupon = coupons.split(',');
-    let resultCoupon = [];
-    listCoupon.forEach(async (item) => {
-      let code = item.trim();
+    
+   return await this.getCouponsFromList(listCoupon);
+  }
+  
+  private  async getCouponsFromList(listCoupon) {
+    var resultCoupon = [];
+    for(let i = 0 ; i < listCoupon.length; i++) {
+      let code = listCoupon[i].trim();
       const coupon = await this.couponsService.findOneByCode(code);
-      if (coupon.code.trim() !== '') {
-        resultCoupon.push(coupon);
+      if (isString(coupon.code)) {
+       resultCoupon.push(coupon);
       }
-    });
+    }
     return resultCoupon;
   }
 }

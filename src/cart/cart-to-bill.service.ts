@@ -4,6 +4,7 @@ import { ProductCart } from './schema/product-cart.shema';
 import { Model, isValidObjectId } from 'mongoose';
 import { CartService } from './cart.service';
 import { CouponsService } from 'src/coupons/coupons.service';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class CartToBillService {
@@ -11,6 +12,7 @@ export class CartToBillService {
     @InjectModel(ProductCart.name) private cartModel: Model<ProductCart>,
     private readonly cartService: CartService,
     private readonly couponsService: CouponsService,
+    private readonly productService: ProductsService,
   ) {}
 
   // các thao tác liên quan tới billModule
@@ -84,5 +86,15 @@ export class CartToBillService {
     if (price <= 0) price = 0;
     productCart.price = price;
     return productCart;
+  }
+
+  async updateStockProductWhenSaveBill(idProductBill) {
+    let productBill = await this.cartService.findById(idProductBill);
+    let change: number = - productBill.quantity;
+    let product = await this.productService.updateStock(
+      productBill.idProduct,
+      change,
+    );
+    console.log('product change: ', product, change);
   }
 }

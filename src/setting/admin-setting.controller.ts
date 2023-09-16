@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { SettingService } from './setting.service';
 
 import { Query as QueryExpress } from 'express-serve-static-core';
@@ -19,6 +27,23 @@ export class AdminSettingController {
     res.status(200).json({
       message:
         'bạn đã chỉnh sửa toàn bộ customer, bạn đã set loại khách hàng tự động thêm mã giảm giá vào cho họ, CẢNH BÁO: HÀNH ĐỘNG NÀY CHỈ NÊN LÀM 1 LẦN VÌ NÓ ẢNH HƯỞNG TỚI TẤT CẢ KHÁCH HÀNG',
+    });
+  }
+
+  @Post(':idCustomer/addCoupons')
+  async addCouponforOneCustomer(
+    @Param() params,
+    @Body('codeCoupons') codeCoupons: string[],
+    @Res() res: ResExpress,
+  ) {
+    const { idCustomer } = params;
+    const setting = await this.settingService.addCouponforOneCustomer(
+      idCustomer,
+      codeCoupons,
+    );
+    res.status(200).json({
+      message: 'Thêm coupon cho customer thành công',
+      setting: setting,
     });
   }
 }

@@ -48,12 +48,14 @@ export class BillsService {
           id,
           bill.id,
         );
-        messageCoupons.push(productBill.messageCoupon)
+        messageCoupons.push(productBill.messageCoupon);
         total = this.calculatingPriceProductCart(total, productBill);
       }
     }
     bill.total = total;
-    let result = await this.billModel.findByIdAndUpdate(bill.id, bill, { new: true });
+    let result = await this.billModel.findByIdAndUpdate(bill.id, bill, {
+      new: true,
+    });
     result.messageCoupons = messageCoupons;
     return result;
   }
@@ -63,6 +65,14 @@ export class BillsService {
 
     saveBill.total = this.calculatingTotalCost(saveBill.total, saveBill);
     saveBill.statePay = 'shipping';
+    const listProductBill =
+      await this.cartToBillService.findProductBillByIdBill(id);
+    for (let i = 0; i < listProductBill.length; i++) {
+      let idProductBill = listProductBill[i].id;
+      await this.cartToBillService.updateStockProductWhenSaveBill(
+        idProductBill,
+      );
+    }
     return await this.billModel.findByIdAndUpdate(id, saveBill, { new: true });
   }
   //   tính toán coupon , phí ship, ...

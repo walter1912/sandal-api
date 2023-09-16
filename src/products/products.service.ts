@@ -52,8 +52,7 @@ export class ProductsService {
   async searchByElementPaginate(query: QueryExpress): Promise<Product[]> {
     const conditions = {} as any;
 
-   
-    if(query.element === 'sole') {
+    if (query.element === 'sole') {
       if (query.color) {
         conditions['element.sole.color'] = query.color; // Tìm kiếm theo màu sắc của sole
       }
@@ -61,7 +60,7 @@ export class ProductsService {
         conditions['element.sole.material'] = query.material; // Tìm kiếm theo chất liệu của sole
       }
     }
-    if(query.element === 'sandal') {
+    if (query.element === 'sandal') {
       if (query.color) {
         conditions['element.sandal.color'] = query.color; // Tìm kiếm theo màu sắc của sandal
       }
@@ -69,7 +68,7 @@ export class ProductsService {
         conditions['element.sandal.material'] = query.material; // Tìm kiếm theo chất liệu của sandal
       }
     }
-    
+
     // Tiến hành tìm kiếm
     // phân trang
     const resPerPage = 10;
@@ -136,5 +135,20 @@ export class ProductsService {
   async deleteById(id: string): Promise<Product> {
     const existed = await this.findById(id);
     return await this.productModel.findByIdAndDelete(id);
+  }
+  async updateStock(id: string, change: number) {
+    let existed = await this.findById(id);
+    if (existed.stock === 0) {
+      throw new BadRequestException('Hết hàng');
+    }
+    existed.stock += change;
+    if (existed.stock < 0) {
+      throw new BadRequestException(
+        'Không có đủ hàng để bán, khách hàng vui lòng giảm số lượng',
+      );
+    }
+    return await this.productModel.findByIdAndUpdate(id, existed, {
+      new: true,
+    });
   }
 }
