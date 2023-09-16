@@ -10,6 +10,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { BillsModule } from 'src/bills/bills.module';
 import { CartToBillService } from './cart-to-bill.service';
 import { CouponsModule } from 'src/coupons/coupons.module';
+import { StatisticCartController } from './statistic-cart.controller';
+import { StatisticCartService } from './statistic-cart.service';
 
 @Module({
   imports: [
@@ -21,8 +23,8 @@ import { CouponsModule } from 'src/coupons/coupons.module';
       { name: ProductCart.name, schema: ProductCartSchema },
     ]),
   ],
-  providers: [CartService, CartToBillService],
-  controllers: [CartController],
+  providers: [CartService, CartToBillService, StatisticCartService],
+  controllers: [CartController, StatisticCartController],
   exports: [CartService, CartToBillService, CartModule],
 })
 export class CartModule {}

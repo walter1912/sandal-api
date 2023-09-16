@@ -50,7 +50,9 @@ export class CartService {
     }
     return productCart;
   }
-
+  async findAllByIdProduct(idProduct: string):  Promise<ProductCart[]>  {
+    return await this.cartModel.find({ idProduct });
+  }
   async updateItemCart(
     id,
     updateProductCartDto: UpdateProductCartDto,
@@ -72,5 +74,4 @@ export class CartService {
     await this.findById(id);
     return await this.cartModel.findByIdAndDelete(id);
   }
-
 }
