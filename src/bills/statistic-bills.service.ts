@@ -13,7 +13,7 @@ export class StatisticBillService {
   ) {}
   // có sort theo thời gian hoặc theo giá trị hóa đơn.
   // 'time' hoặc 'total'
-  async getAllBillByIdCustomer(idCustomer: ObjectId, typeSort: string) {
+  async getAllBillByIdCustomer(idCustomer: string, typeSort: string) {
     let sortBy = {}; // Đối tượng dùng để xác định cách sắp xếp
 
     if (typeSort === 'time') {
