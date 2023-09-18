@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Exclude } from 'class-transformer';
 import { HydratedDocument } from 'mongoose';
 
 export type CustomerDocument = HydratedDocument<Customer>;
@@ -6,6 +7,7 @@ export type CustomerDocument = HydratedDocument<Customer>;
 @Schema({
   timestamps: true,
 })
+
 export class Customer {
   @Prop({ unique: [true, 'Username của khách hàng đã tồn tại'] })
   username: string;
@@ -25,5 +27,8 @@ export class Customer {
   gender: string;
   @Prop()
   role: string;
+  // @Exclude()
+  @Prop()
+  refreshToken: string;
 }
 export const CustomerSchema = SchemaFactory.createForClass(Customer);

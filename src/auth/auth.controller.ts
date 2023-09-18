@@ -27,36 +27,43 @@ export class AuthController {
   @Post('login')
   async login(@Body() body, @Res() res: ResExpress) {
     const userDto: CustomerLoginDto = body;
-    const { token } = await this.authService.login(userDto);
-    if (token)
-      res.status(200).json({
-        message: 'Đăng nhập thành công',
-        token,
-      });
+    const token = await this.authService.login(userDto);
+
+    res.status(200).json({
+      message: 'Đăng nhập thành công',
+      ...token,
+    });
   }
   @HttpCode(HttpStatus.OK)
   @Post('change')
   async changePassword(@Body() body, @Res() res: ResExpress) {
     const changePasswordDto: ChangePasswordDto = body;
-    const { token } = await this.authService.changePassword(changePasswordDto);
-    if (token)
+    const token =
+      await this.authService.changePassword(changePasswordDto);
+  
       res.status(200).json({
         message: 'Đổi mật khẩu thành công',
-        token,
+        ...token,
       });
   }
   @Public()
   @Post('register')
   async register(@Body() body, @Res() res: ResExpress) {
     const customerRegisterDto: CustomerRegisterDto = body;
-    const { token } = await this.authService.register(customerRegisterDto);
-    if (token)
+    const token =
+      await this.authService.register(customerRegisterDto);
+    
       res.status(201).json({
         message: 'Đăng ký thành công',
-        token,
+        ...token,
       });
   }
-
+// 
+  @Post('/refreshToken')
+  async refreshToken(@Body() body) {
+    return await this.authService.refresh(body.refresh_token);
+  }
+ 
   @Get('profile')
   getProfile(@Request() req, @Res() res: ResExpress) {
     res.status(200).json({
@@ -64,5 +71,4 @@ export class AuthController {
       user: req.user,
     });
   }
-
 }

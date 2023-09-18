@@ -4,16 +4,19 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Customer } from './schema/customer.schema';
 import { Model, isValidObjectId } from 'mongoose';
 import { Query as QueryExpress } from 'express-serve-static-core';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class CustomersService {
+ 
   constructor(
     @InjectModel(Customer.name) private customerModel: Model<Customer>,
-  ) {}
+  ) {}  
   // CustomerRegisterDto
   async create(createCustomerDto): Promise<Customer> {
     console.log('This action adds a new customer');
@@ -104,5 +107,40 @@ export class CustomersService {
   async deleteById(id: string): Promise<Customer> {
     const existed = await this.findById(id);
     return await this.customerModel.findByIdAndDelete(id);
+  }
+
+  async updateRefreshToken(username: string, refresh_token: string) {
+    // throw new Error('Method not implemented.');
+    const updatedCustomer = await this.customerModel.findOneAndUpdate(
+      { username },
+      { $set: { refreshToken: refresh_token } },
+      { new: true },
+    );
+
+    if (!updatedCustomer) {
+      throw new Error(`Customer with username ${username} not found`);
+    }
+
+    return updatedCustomer;
+  }
+  // (arg0: { username: string; }, arg1: { refreshToken: null; }) {
+  //   throw new Error('Method not implemented.');
+  // }
+  async removeRT(username) {
+    return await this.customerModel.findOneAndUpdate({username}, {$set: {refreshToken: null}});
+  }
+
+  async getUserByRefresh( username, refresh_token) {
+    const user = await this.findByUsername(username);
+   
+    const is_equal = await bcrypt.compare(
+     refresh_token,
+      user.refreshToken,
+    );
+
+    if (!is_equal) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return user;
   }
 }

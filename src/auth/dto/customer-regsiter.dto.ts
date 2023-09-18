@@ -16,7 +16,7 @@ export class CustomerRegisterDto {
   @IsDateString()
   readonly dob: string;
   readonly gender: string;
-  readonly roles: string;
+  readonly role: string;
   readonly type: Number;
 
 }

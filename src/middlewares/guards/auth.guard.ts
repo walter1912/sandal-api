@@ -9,6 +9,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from 'config/decorations/public.decorator';
 import { jwtConstants } from 'src/auth/constants';
+import { isErrored } from 'stream';
 
 
   @Injectable()
@@ -27,27 +28,27 @@ import { jwtConstants } from 'src/auth/constants';
       }
   
       const request = context.switchToHttp().getRequest();
-      const token = this.extractTokenFromHeader(request);
-      if (!token) {
+      const access_token = this.extractTokenFromHeader(request);
+      if (!access_token) {
         throw new UnauthorizedException();
       }
       try {
-        const payload = await this.jwtService.verifyAsync(token, {
+        const payload = await this.jwtService.verifyAsync(access_token, {
           secret: jwtConstants.secret,
         });
         // 💡 We're assigning the payload to the request object here
         // so that we can access it in our route handlers
         request['user'] = payload;
         console.log("user guard auth: ",  request['user']);
-      } catch {
-        throw new UnauthorizedException();
+      } catch(err) {
+        throw new UnauthorizedException(err);
       }
       return true;
     }
   
     private extractTokenFromHeader(request: Request): string | undefined {
-      const [type, token] = request.headers.authorization?.split(' ') ?? [];
-      return type === 'Bearer' ? token : undefined;
+      const [type, access_token] = request.headers.authorization?.split(' ') ?? [];
+      return type === 'Bearer' ? access_token : undefined;
     }
   }
   
