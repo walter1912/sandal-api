@@ -69,7 +69,7 @@ export class CustomersController {
       customer,
     });
   }
-  @Get(':id')
+  @Get('usernames/:username')
   async findByUsername(@Param() params, @Res() res: ResExpress) {
     const { username } = params;
     const customer = await this.customersService.findByUsername(username);
