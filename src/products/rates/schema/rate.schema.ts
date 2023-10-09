@@ -8,6 +8,7 @@ export type RateDocument = HydratedDocument<Rate>;
 @Schema({
   timestamps: true,
 })
+
 export class Rate {
   @Prop({ required: true }) // Định nghĩa kiểu dữ liệu là ObjectId
   idCustomer: string;

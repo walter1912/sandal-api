@@ -12,4 +12,5 @@ export class CouponDto {
   @IsDate()
   end: Date;
   countUsed: number;
+  maxUse: number;
 }

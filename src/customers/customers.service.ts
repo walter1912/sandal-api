@@ -13,10 +13,12 @@ import { Query as QueryExpress } from 'express-serve-static-core';
 import * as bcrypt from 'bcrypt';
 @Injectable()
 export class CustomersService {
- 
   constructor(
     @InjectModel(Customer.name) private customerModel: Model<Customer>,
-  ) {}  
+  ) {}
+  async checkExistPhone(phone: string) {
+    return await this.customerModel.findOne({ phone });
+  }
   // CustomerRegisterDto
   async create(createCustomerDto): Promise<Customer> {
     console.log('This action adds a new customer');
@@ -127,16 +129,16 @@ export class CustomersService {
   //   throw new Error('Method not implemented.');
   // }
   async removeRT(username) {
-    return await this.customerModel.findOneAndUpdate({username}, {$set: {refreshToken: null}});
+    return await this.customerModel.findOneAndUpdate(
+      { username },
+      { $set: { refreshToken: null } },
+    );
   }
 
-  async getUserByRefresh( username, refresh_token) {
+  async getUserByRefresh(username, refresh_token) {
     const user = await this.findByUsername(username);
-   
-    const is_equal = await bcrypt.compare(
-     refresh_token,
-      user.refreshToken,
-    );
+
+    const is_equal = refresh_token === user.refreshToken;
 
     if (!is_equal) {
       throw new UnauthorizedException('Invalid credentials');

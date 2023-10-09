@@ -126,6 +126,8 @@ export class AuthService {
       const payload = await this.jwtService.verify(refresh_token, {
         secret: process.env.REFRESH_TOKEN_SECRET,
       });
+      console.log("payload: ", payload);
+      
       const user = await this.customerService.getUserByRefresh(
         payload.username,
         refresh_token, 

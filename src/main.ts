@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './middlewares/all-exception.filter';
+import * as cors from 'cors';
 
 const host = process.env.HOST ?? 3011;
 
@@ -26,7 +27,13 @@ async function bootstrap() {
 
   // exceptions
   app.useGlobalFilters(new HttpExceptionFilter());
-
+  // Thiết lập CORS cho ứng dụng
+  app.use(
+    cors({
+      origin: '*', // Địa chỉ của trang web frontend của bạn
+      credentials: true, // Nếu bạn cần sử dụng cookies hoặc authentication
+    }),
+  );
   await app.listen(host);
 }
 bootstrap();

@@ -16,10 +16,18 @@ export class CouponsController {
   @Get()
   async getAll(@Res() res: ResExpress) {
     const coupons = await this.couponsService.getAll();
-    res.status(201).json({
-        message: 'Lấy mã giảm giá thành công',
+    res.status(200).json({
+        message: 'Lấy tất cả mã giảm giá thành công',
         coupons,
       });
+  }
+  @Get('top') 
+  async getTop(@Res() res: ResExpress) {
+    const coupons = await this.couponsService.getTop();
+    res.status(200).json({
+      message: 'Lấy top mã giảm giá thành công',
+      coupons,
+    });
   }
   @Post('admin')
   @Roles(Role.Admin)

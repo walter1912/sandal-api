@@ -28,6 +28,9 @@ export class Coupon {
 // số lượt sử dụng
   @Prop()
   countUsed: number;
+  // số lượt sử dụng tối đa 
+  @Prop()
+  maxUse: number;
 }
 
 export const CouponSchema = SchemaFactory.createForClass(Coupon);

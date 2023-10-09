@@ -59,7 +59,8 @@ export class AuthController {
       });
   }
 // 
-  @Post('/refreshToken')
+@Public()
+  @Post('refreshToken')
   async refreshToken(@Body() body) {
     return await this.authService.refresh(body.refresh_token);
   }

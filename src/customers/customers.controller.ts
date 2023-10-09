@@ -20,6 +20,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
 import { ReviewsService } from 'src/products/reviews/reviews.service';
+import { Public } from 'config/decorations/public.decorator';
 
 @Controller('customers')
 export class CustomersController {
@@ -41,7 +42,20 @@ export class CustomersController {
   //     customer,
   //   });
   // }
-
+@Public()
+@Get('checkPhone')
+    async checkExistPhone(@Body('phone') phone: string, @Res() res: ResExpress ) {
+      const customer = await this.customersService.checkExistPhone(phone);
+      if(customer) {
+        res.status(401).json({
+          message: 'Số điện thoại đã được sử dụng, bạn có muốn tiếp tục?',
+          customer
+        })
+      }
+      res.status(201).json({
+        message: 'Số điện thoại chưa được sử dụng, hãy tiếp tục đăng ký'
+      })
+    }
   // @Roles(Role.Admin)
   @Get()
   async findAll(@Query() query: QueryExpress, @Res() res: ResExpress) {

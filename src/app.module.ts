@@ -23,7 +23,8 @@ import { SettingModule } from './setting/setting.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),   
-    MongooseModule.forRoot('mongodb://localhost:27017/sandal-database?retryWrites=true&w=majority'),
+    // MongooseModule.forRoot('mongodb://localhost:27017/sandal-database?retryWrites=true&w=majority'),
+    MongooseModule.forRoot(process.env.CONNECTION_STRING),
     CustomersModule,  
     AuthModule,
     ProductsModule,
