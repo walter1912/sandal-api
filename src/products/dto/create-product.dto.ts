@@ -26,4 +26,10 @@ export class CreateProductDto {
 
   @IsNumber()
   star: number;
+
+  @IsNumber()
+  bought: number;
+  
+  @IsString()
+  img: number;
 }

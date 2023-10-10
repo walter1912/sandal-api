@@ -10,6 +10,7 @@ import { CustomersModule } from 'src/customers/customers.module';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { RolesGuard } from 'src/middlewares/guards/roles.guard';
+import { ProductName, ProductNameSchema } from './schema/product-name.schema';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RolesGuard } from 'src/middlewares/guards/roles.guard';
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
     MongooseModule.forFeature([{ name: Rate.name, schema: RateSchema }]),
+    MongooseModule.forFeature([{name: ProductName.name, schema: ProductNameSchema}])
   ],
   controllers: [ProductsController],
   providers: [ReviewsService, RatesService, ProductsService],

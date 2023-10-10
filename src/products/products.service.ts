@@ -9,13 +9,57 @@ import { Model, isValidObjectId } from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Query as QueryExpress } from 'express-serve-static-core';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductName } from './schema/product-name.schema';
+import { ProductNameDto } from './dto/product-name.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(ProductName.name) private productNameModel: Model<ProductName>,
   ) {}
 
+  async createProductName(createProductName: any): Promise<ProductName> {
+    let { name, code } = createProductName;
+    let existedName = await this.productNameModel
+      .findOne({ name: name })
+      .exec();
+    if (existedName) {
+      throw new BadRequestException('Đã tồn tại sản phẩm có tên như trên');
+    }
+    let existedCode = await this.productNameModel
+      .findOne({ code: code })
+      .exec();
+    if (existedCode) {
+      throw new BadRequestException('Đã tồn tại sản phẩm có code như trên');
+    }
+    return new this.productNameModel(createProductName).save();
+  }
+
+  async findAllProductName(): Promise<ProductNameDto[]> {
+    let listProductName = await this.productNameModel.find().exec();
+    let result = [];
+    for (let i = 0; i < listProductName.length; i++) {
+      const products = await this.searchAllByName(listProductName[i].name);
+      let bought = products.reduce((totalBought, product, index) => {
+        totalBought += product.bought;
+        return totalBought;
+      }, 0);
+      const { star, img, cost } = products[0];
+      let newProduct: ProductNameDto = {
+        listProduct: products,
+        bought,
+        ...listProductName[i],
+        star,
+        img,
+        cost,
+      };
+      result.push(newProduct);
+
+    }
+
+    return result;
+  }
   async create(createProductDto: CreateProductDto): Promise<Product> {
     console.log('This action adds a new customer');
     return await new this.productModel(createProductDto).save();
@@ -117,7 +161,7 @@ export class ProductsService {
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     const existed: Product = await this.findById(id);
-    const existedDto: CreateProductDto = existed;
+    const existedDto = existed;
     const product = {
       existedDto,
       ...updateProductDto,
@@ -136,11 +180,13 @@ export class ProductsService {
     const existed = await this.findById(id);
     return await this.productModel.findByIdAndDelete(id);
   }
+
   async updateStock(id: string, change: number) {
     let existed = await this.findById(id);
     if (existed.stock === 0) {
       throw new BadRequestException('Hết hàng');
     }
+    existed.bought -= change;
     existed.stock += change;
     if (existed.stock < 0) {
       throw new BadRequestException(

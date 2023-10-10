@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, ObjectId } from 'mongoose';
-import { Customer } from 'src/customers/schema/customer.schema';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -10,7 +9,6 @@ export type ProductDocument = HydratedDocument<Product>;
 export class Product {
   @Prop()
   name: string;
-  
   @Prop({
     type: Object,
     required: true,
@@ -53,6 +51,12 @@ export class Product {
 
   @Prop()
   star: number;
+
+  @Prop()
+  bought: number;
+
+  @Prop()
+  img: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

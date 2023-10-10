@@ -12,4 +12,10 @@ export class UpdateProductDto {
 
   @IsNumber()
   star: number;
+
+  @IsNumber()
+  bought: number;
+
+  @IsString()
+  img: string;
 }

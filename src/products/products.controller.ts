@@ -27,6 +27,7 @@ import { ReviewsService } from './reviews/reviews.service';
 import { CustomerCreatedGuard } from 'src/middlewares/guards/customer-created.guard';
 import { RatesService } from './rates/rates.service';
 import { CreateRateDto } from './rates/dto/create-rate.dto';
+import { ProductName } from './schema/product-name.schema';
 
 @Controller('products')
 export class ProductsController {
@@ -35,6 +36,21 @@ export class ProductsController {
     private reviewsService: ReviewsService,
     private ratesService: RatesService,
   ) {}
+
+  @Post()
+  @Roles(Role.Admin)
+  @UseGuards(RolesGuard)
+  async createProductName(
+    @Body() productNameDto: any,
+    @Res() res: ResExpress,
+  ): Promise<any> {
+    const productName =
+      await this.productsService.createProductName(productNameDto);
+    res.status(201).json({
+      message: 'Tạo thông tin sản phẩm thành công',
+      productName,
+    });
+  }
 
   @Post()
   @Roles(Role.Admin)
@@ -50,9 +66,19 @@ export class ProductsController {
       product,
     });
   }
-
   @Public()
   @Get()
+  async findAllProductName(@Res() res: ResExpress) {
+    const productNames = await this.productsService.findAllProductName();
+
+    res.status(200).json({
+      message: 'Lấy danh sách sản phẩm thành công',
+      productNames,
+    });
+  }
+
+  @Public()
+  @Get('search')
   async findAndSearchByNamePaginate(
     @Query() query: QueryExpress,
     @Res() res: ResExpress,
@@ -76,7 +102,8 @@ export class ProductsController {
     }
   }
   @Public()
-  @Get('elements')
+  @Get('search/elements')
+  // bắt buộc phải có color và material
   async searchByElementPaginate(
     @Query() query: QueryExpress,
     @Res() res: ResExpress,
@@ -207,7 +234,7 @@ export class ProductsController {
   ) {
     const idCustomer = req.user.id;
     const idProduct = id;
-    const star = Number(body.star);  
+    const star = Number(body.star);
     const createRateDto: CreateRateDto = {
       idCustomer,
       idProduct,
@@ -221,15 +248,11 @@ export class ProductsController {
   }
 
   @Get(':id/rates')
-  async getRateProduct(
-    @Param('id') id: string,
-    @Res() res: ResExpress,
-  ) {
+  async getRateProduct(@Param('id') id: string, @Res() res: ResExpress) {
     const idProduct = id;
     let star = await this.ratesService.getRateProduct(idProduct);
     res.status(200).json({
-      rate: star
-    })
+      rate: star,
+    });
   }
-
 }
