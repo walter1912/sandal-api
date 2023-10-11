@@ -17,12 +17,16 @@ export class ProductCart {
   coupon: string;
   @Prop({ required: true })
   price: number;
-
+  @Prop()
+  size: number;
+  @Prop()
+  type: string;
   @Prop()
   idBill: string;
 
   @Prop()
   isBought: boolean;
   messageCoupon: string;
+  id:string;
 }
 export const ProductCartSchema = SchemaFactory.createForClass(ProductCart);

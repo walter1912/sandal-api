@@ -28,8 +28,8 @@ export class CreateProductDto {
   star: number;
 
   @IsNumber()
-  bought: number;
-  
+  bought?: number;
+
   @IsString()
   img: number;
 }

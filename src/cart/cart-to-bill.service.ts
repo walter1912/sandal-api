@@ -19,8 +19,10 @@ export class CartToBillService {
   async addProductCartToBill(idProductCart: string, idBill: string) {
     let existed = await this.cartService.findById(idProductCart);
     let updatePrice = await this.calculatingCoupon(existed);
+    console.log("updatePrice: ", updatePrice);
+    
     const productBill = {
-      updatePrice,
+      ...updatePrice,
       idBill: idBill,
     };
     let result = await this.cartModel.findByIdAndUpdate(
@@ -54,10 +56,12 @@ export class CartToBillService {
   }
 
   private async calculatingCoupon(existed): Promise<ProductCart> {
+
+
     let productCart = existed;
     productCart.id = existed.id;
     let price = 0;
-    let couponCodes = productCart.coupon.split(',');
+    let couponCodes = existed.coupon.split(',');
     productCart.messageCoupon = '';
     let maxDiscout = 0;
     let percent = 0;
@@ -80,9 +84,9 @@ export class CartToBillService {
         productCart.messageCoupon = `Sản phẩm ${productCart.id} không sử dụng được mã ${code}`;
       }
     }
-    let discount = (productCart.price * percent) / 100;
+    let discount = (existed.price * percent) / 100;
     if (discount > maxDiscout) discount = maxDiscout;
-    price = productCart.price - discount;
+    price = existed.price - discount;
     if (price <= 0) price = 0;
     productCart.price = price;
     return productCart;
@@ -90,7 +94,7 @@ export class CartToBillService {
 
   async updateStockProductWhenSaveBill(idProductBill) {
     let productBill = await this.cartService.findById(idProductBill);
-    let change: number = - productBill.quantity;
+    let change: number = -productBill.quantity;
     let product = await this.productService.updateStock(
       productBill.idProduct,
       change,

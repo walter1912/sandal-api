@@ -45,7 +45,7 @@ export class ProductsService {
         totalBought += product.bought;
         return totalBought;
       }, 0);
-      const { star, img, cost } = products[0];
+      const { star = 1, img = "", cost = 0, name ="" } = products[0];
       let newProduct: ProductNameDto = {
         listProduct: products,
         bought,
@@ -53,6 +53,7 @@ export class ProductsService {
         star,
         img,
         cost,
+        name
       };
       result.push(newProduct);
 
