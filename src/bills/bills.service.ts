@@ -31,6 +31,7 @@ export class BillsService {
   async createPendingBill(prepareBill: PrepareBill) {
     const { productCarts, ...createBill } = prepareBill;
     let messageCoupons = [];
+    let couponUsed = [];
     let statePay = 'empty';
     if (productCarts.length > 0) {
       statePay = 'pending';
@@ -49,14 +50,16 @@ export class BillsService {
           bill.id,
         );
         messageCoupons.push(productBill.messageCoupon);
+        couponUsed = [...couponUsed, ...productBill.couponUsed];
         total = this.calculatingPriceProductCart(total, productBill);
       }
     }
-    bill.total = total;
+    bill.total = total + bill.ship;
     let result = await this.billModel.findByIdAndUpdate(bill.id, bill, {
       new: true,
     });
     result.messageCoupons = messageCoupons;
+    result.couponUsed = couponUsed;
     return result;
   }
 

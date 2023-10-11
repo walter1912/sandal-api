@@ -26,7 +26,8 @@ export class ProductCart {
 
   @Prop()
   isBought: boolean;
-  messageCoupon: string;
+  messageCoupon?: string;
+  couponUsed?: string[];
   id:string;
 }
 export const ProductCartSchema = SchemaFactory.createForClass(ProductCart);

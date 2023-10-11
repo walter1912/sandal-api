@@ -42,6 +42,7 @@ export class BillsController {
     res.status(200).json({
       message: 'Tạo hóa đơn vào hàng đợi thành công',
       messageCoupons: pendingBill.messageCoupons,
+      couponUsed: pendingBill.couponUsed,
       bill: pendingBill,
     });
   }

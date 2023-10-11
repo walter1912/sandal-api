@@ -19,8 +19,8 @@ export class CartToBillService {
   async addProductCartToBill(idProductCart: string, idBill: string) {
     let existed = await this.cartService.findById(idProductCart);
     let updatePrice = await this.calculatingCoupon(existed);
-    console.log("updatePrice: ", updatePrice);
-    
+    console.log('updatePrice: ', updatePrice);
+
     const productBill = {
       ...updatePrice,
       idBill: idBill,
@@ -33,7 +33,7 @@ export class CartToBillService {
       },
     );
     result.messageCoupon = updatePrice.messageCoupon;
-
+    result.couponUsed = updatePrice.couponUsed;
     return result;
   }
 
@@ -56,34 +56,37 @@ export class CartToBillService {
   }
 
   private async calculatingCoupon(existed): Promise<ProductCart> {
-
-
     let productCart = existed;
     productCart.id = existed.id;
     let price = 0;
     let couponCodes = existed.coupon.split(',');
+    console.log("couponCodes: ", couponCodes);
+    
     productCart.messageCoupon = '';
     let maxDiscout = 0;
     let percent = 0;
-    for (let i = 0; i < couponCodes.length; i++) {
-      let code = couponCodes[i];
-      let coupon = await this.couponsService.findOneByCode(code);
-      let today = new Date();
-      if (
-        coupon.start.getTime() < today.getTime() &&
-        coupon.end.getTime() > today.getTime()
-      ) {
-        await this.couponsService.addOneUsed(code);
-        if (coupon.maxDiscount > maxDiscout) {
-          maxDiscout = coupon.maxDiscount;
+    productCart.couponUsed = [];
+      for (let i = 0; i < couponCodes.length; i++) {
+        let code = couponCodes[i];
+        if(code == '') continue;
+        let coupon = await this.couponsService.findOneByCode(code);
+        let today = new Date();
+        if (
+          coupon.start.getTime() < today.getTime() &&
+          coupon.end.getTime() > today.getTime()
+        ) {
+          await this.couponsService.addOneUsed(code);
+          if (coupon.maxDiscount > maxDiscout) {
+            maxDiscout = coupon.maxDiscount;
+          }
+          if (coupon.percent > percent) {
+            percent = coupon.percent;
+          }
+          productCart.couponUsed.push(code);
+        } else {
+          productCart.messageCoupon = `Sản phẩm ${productCart.id} không sử dụng được mã ${code}`;
         }
-        if (coupon.percent > percent) {
-          percent = coupon.percent;
-        }
-      } else {
-        productCart.messageCoupon = `Sản phẩm ${productCart.id} không sử dụng được mã ${code}`;
       }
-    }
     let discount = (existed.price * percent) / 100;
     if (discount > maxDiscout) discount = maxDiscout;
     price = existed.price - discount;
