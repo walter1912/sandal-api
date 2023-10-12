@@ -18,7 +18,11 @@ export class CouponsService {
     return await this.couponModel.find().exec();
   }
   async getTop() {
-    return await this.couponModel.find().sort({countUsed: -1}).limit(10).exec();
+    return await this.couponModel
+      .find()
+      .sort({ countUsed: -1 })
+      .limit(10)
+      .exec();
   }
   async findOneByCode(code: string) {
     const existed = await this.couponModel.findOne({ code }).exec();
@@ -63,14 +67,16 @@ export class CouponsService {
   // tăng thêm 1 lượt sử dụng khi coupon được tìm thấy ở trong 1 sản phẩm khi được thêm vào bill
   async addOneUsed(code) {
     let existed = await this.couponModel.findOne({ code });
+    let message = 'use';
     if (isNumber(existed.countUsed)) {
-      if (existed.countUsed === existed.maxUse) {
-        throw new BadRequestException('Đã hết lượt sử dụng mã giảm giá!');
+      if (existed.countUsed >= existed.maxUse) {
+        return { message: `Đã hết lượt sử dụng mã giảm giá ${existed.code}!` };
       }
       existed.countUsed += 1;
     } else existed.countUsed = 1;
     const updated = await this.couponModel.findOneAndUpdate({ code }, existed, {
       new: true,
     });
+    return { message };
   }
 }

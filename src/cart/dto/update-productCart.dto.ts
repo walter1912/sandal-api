@@ -10,4 +10,6 @@ export class UpdateProductCartDto {
   price: number;
 
   isBought: boolean;
+  
+  idBill?: string;
 }

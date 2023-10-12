@@ -22,7 +22,7 @@ export class CartToBillService {
     console.log('updatePrice: ', updatePrice);
 
     const productBill = {
-      ...updatePrice,
+      updatePrice,
       idBill: idBill,
     };
     let result = await this.cartModel.findByIdAndUpdate(
@@ -32,27 +32,44 @@ export class CartToBillService {
         new: true,
       },
     );
+    console.log("data productBill: ", productBill);
+
+    console.log("existed productBill: ", existed);
+    console.log("update productBill: ", result);
+    
+    
     result.messageCoupon = updatePrice.messageCoupon;
     result.couponUsed = updatePrice.couponUsed;
     return result;
   }
 
-  async findProductBillByIdBill(idBill: string) {
+  async findProductBillByIdBill(idBill: string) : Promise<ProductCart[]> {
     if (!isValidObjectId(idBill)) {
       throw new BadRequestException('Bạn nhập sai id Bill!');
     }
-    return await this.cartModel.find({ idBill });
+    console.log("idBill: ", idBill);
+    
+    return await this.cartModel.find({ idBill :idBill  }).exec();
   }
 
   async updateProductBought(idProductCart: string) {
-    const productBill = await this.cartModel.findById(idProductCart);
-    const bought = {
+    let productBill = await this.cartModel.findById(idProductCart);
+    let bought = {
       productBill,
       isBought: true,
     };
-    return await this.cartModel.findByIdAndUpdate(idProductCart, bought, {
-      new: true,
-    });
+
+    const updated = await this.cartModel.findByIdAndUpdate(
+      idProductCart,
+      bought,
+      {
+        new: true,
+      },
+    );
+    console.log('bought: ', bought);
+    console.log('updated: ', updated);
+
+    return updated;
   }
 
   private async calculatingCoupon(existed): Promise<ProductCart> {
@@ -60,22 +77,24 @@ export class CartToBillService {
     productCart.id = existed.id;
     let price = 0;
     let couponCodes = existed.coupon.split(',');
-    console.log("couponCodes: ", couponCodes);
-    
+    console.log('couponCodes: ', couponCodes);
+
     productCart.messageCoupon = '';
     let maxDiscout = 0;
     let percent = 0;
     productCart.couponUsed = [];
-      for (let i = 0; i < couponCodes.length; i++) {
-        let code = couponCodes[i];
-        if(code == '') continue;
-        let coupon = await this.couponsService.findOneByCode(code);
-        let today = new Date();
-        if (
-          coupon.start.getTime() < today.getTime() &&
-          coupon.end.getTime() > today.getTime()
-        ) {
+    for (let i = 0; i < couponCodes.length; i++) {
+      let code = couponCodes[i];
+      if (code == '') continue;
+      let coupon = await this.couponsService.findOneByCode(code);
+      let today = new Date();
+      if (
+        coupon.start.getTime() < today.getTime() &&
+        coupon.end.getTime() > today.getTime()
+      ) {
+        const { message = 'loading' } =
           await this.couponsService.addOneUsed(code);
+        if (message === 'use') {
           if (coupon.maxDiscount > maxDiscout) {
             maxDiscout = coupon.maxDiscount;
           }
@@ -84,10 +103,13 @@ export class CartToBillService {
           }
           productCart.couponUsed.push(code);
         } else {
-          productCart.messageCoupon = `Sản phẩm ${productCart.id} không sử dụng được mã ${code}`;
+          productCart.messageCoupon = message;
         }
+      } else {
+        productCart.messageCoupon = `Sản phẩm ${productCart.id} không sử dụng được mã ${code}`;
       }
-    let discount = (existed.price * percent) / 100;
+    }
+    let discount = Number((existed.price * percent) / 100);
     if (discount > maxDiscout) discount = maxDiscout;
     price = existed.price - discount;
     if (price <= 0) price = 0;

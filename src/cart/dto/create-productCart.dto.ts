@@ -18,4 +18,6 @@ export class CreateProductCartDto {
   price: number;
 
   isBought: boolean;
+
+  idBill?: string;
 }

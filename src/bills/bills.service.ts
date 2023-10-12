@@ -42,9 +42,13 @@ export class BillsService {
     };
     let bill = await new this.billModel(postBill).save();
     let total = 0;
+    console.log("creat pending bill have idBill = ", bill.id);
+    console.log("creat pending bill have bill = ", bill);
+
     if (productCarts.length > 0) {
       for (let i = 0; i < productCarts.length; i++) {
         let id = String(productCarts[i]);
+        
         let productBill = await this.cartToBillService.addProductCartToBill(
           id,
           bill.id,
@@ -64,14 +68,17 @@ export class BillsService {
   }
 
   async createSaveBill(id: string) {
-    const saveBill = await this.findById(id);
+    let saveBill = await this.findById(id);
 
     saveBill.total = this.calculatingTotalCost(saveBill.total, saveBill);
     saveBill.statePay = 'shipping';
     const listProductBill =
       await this.cartToBillService.findProductBillByIdBill(id);
+      console.log("listProductBill: ", listProductBill);
+      
     for (let i = 0; i < listProductBill.length; i++) {
-      let idProductBill = listProductBill[i].id;
+      let idProductBill = String(listProductBill[i].id);
+      await this.cartToBillService.updateProductBought(idProductBill);
       await this.cartToBillService.updateStockProductWhenSaveBill(
         idProductBill,
       );
