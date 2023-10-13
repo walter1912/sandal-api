@@ -73,10 +73,12 @@ export class BillsController {
   }
   @Get('/:idBill')
   async getOneBill(@Param('idBill') idBill: string, @Res() res: ResExpress) {
-    const bill = await this.billsService.findById(idBill);
+    const { bill, listProductBill } =
+      await this.billsService.getInforBill(idBill);
     res.status(200).json({
       message: 'Lấy thông tin bill thành công',
       bill,
+      listProductBill,
     });
   }
 }

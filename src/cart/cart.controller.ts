@@ -16,11 +16,16 @@ import { Request as ReqExpress, Response as ResExpress } from 'express';
 import { CreateProductCartDto } from './dto/create-productCart.dto';
 import { UpdateProductCartDto } from './dto/update-productCart.dto';
 import { CustomerCartGuard } from 'src/middlewares/guards/customer-cart.guard';
+import { CartToBillService } from './cart-to-bill.service';
 
 @Controller('cart')
 @UseGuards(CustomerCartGuard)
 export class CartController {
-  constructor(private readonly cartService: CartService) {}
+  constructor(
+    private readonly cartService: CartService,
+    private readonly cartToBillService: CartToBillService,
+  ) {}
+
   // get 'cart/:idCustomer'
   // getCustomerCart
   @Get(':idCustomer')
@@ -80,6 +85,18 @@ export class CartController {
     res.status(200).json({
       message: 'Xóa sản phẩm trong giỏ hàng thành công',
       productCart,
+    });
+  }
+
+  //
+  @Get(':idCustomer/idBill/:idBill')
+  async findProductBillByIdBill(@Param() params, @Res() res: ResExpress) {
+    const { idBill } = params;
+    const listProductBill =
+      await this.cartToBillService.findProductBillByIdBill(idBill);
+    res.status(200).json({
+      message: 'Lấy listProductBill theo idBill thành công',
+      listProductBill,
     });
   }
 }

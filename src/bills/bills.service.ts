@@ -18,7 +18,19 @@ export class BillsService {
     private cartToBillService: CartToBillService,
   ) {}
 
-  async findById(id: String): Promise<Bill> {
+  async getInforBill(
+    id: string,
+  ): Promise<{ bill: Bill; listProductBill: ProductCart[] }> {
+    const bill = await this.findById(id);
+    let listProductBill =
+      await this.cartToBillService.findProductBillByIdBill(id);
+
+    return {
+      bill,
+      listProductBill,
+    };
+  }
+  async findById(id: string): Promise<Bill> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Bạn nhập sai id bill');
     }
@@ -42,13 +54,13 @@ export class BillsService {
     };
     let bill = await new this.billModel(postBill).save();
     let total = 0;
-    console.log("creat pending bill have idBill = ", bill.id);
-    console.log("creat pending bill have bill = ", bill);
+    console.log('creat pending bill have idBill = ', bill.id);
+    console.log('creat pending bill have bill = ', bill);
 
     if (productCarts.length > 0) {
       for (let i = 0; i < productCarts.length; i++) {
         let id = String(productCarts[i]);
-        
+
         let productBill = await this.cartToBillService.addProductCartToBill(
           id,
           bill.id,
@@ -74,8 +86,8 @@ export class BillsService {
     saveBill.statePay = 'shipping';
     const listProductBill =
       await this.cartToBillService.findProductBillByIdBill(id);
-      console.log("listProductBill: ", listProductBill);
-      
+    console.log('listProductBill: ', listProductBill);
+
     for (let i = 0; i < listProductBill.length; i++) {
       let idProductBill = String(listProductBill[i].id);
       await this.cartToBillService.updateProductBought(idProductBill);

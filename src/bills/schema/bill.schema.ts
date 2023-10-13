@@ -28,7 +28,7 @@ export class Bill {
   //   đang chờ thanh toán: pending; bill rỗng: empty; đã thanh toán: shipping; đã nhận hàng: received
   @Prop({
     type: String,
-    enum: ['pending', 'empty', 'shiping', 'received'],
+    enum: ['pending', 'empty', 'shiping', 'received', 'cancel'],
   })
   @Prop()
   statePay: string;
