@@ -283,4 +283,28 @@ export class ProductsService {
       new: true,
     });
   }
+
+
+  async getProductHaveCoupon(codeCoupon: string) {
+    const listProductName = await this.productNameModel.find({
+      coupon : {
+        $regex: codeCoupon,
+        $options: 'i',
+      }
+    }).exec();
+    
+    if (listProductName.length < 1) {
+      throw new NotFoundException('Không tìm thấy sản phẩm!');
+    }
+    let result: ProductName[] = [];
+    for (let i = 0; i < listProductName.length; i++) {
+      let newProduct: ProductName = await this.findDetailProductByName(
+        listProductName[i],
+      );
+      result.push(newProduct);
+    }
+    return result;
+  }
 }
+
+

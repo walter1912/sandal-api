@@ -276,4 +276,16 @@ export class ProductsController {
       rate: star,
     });
   }
+
+  @Get('coupon/:codeCoupon') 
+  async getProductHaveCoupon(
+    @Param('codeCoupon') codeCoupon: string,  @Res() res: ResExpress) {
+
+      let productNames = await this.productsService.getProductHaveCoupon(codeCoupon);
+      res.status(200).json({
+        message:`Lấy danh sách các sản phẩm được áp dụng mã giả giá ${codeCoupon} thành công`,
+        productNames
+      })
+    }
+
 }
