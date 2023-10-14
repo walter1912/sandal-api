@@ -55,15 +55,12 @@ export class ProductsController {
   @Post()
   @Roles(Role.Admin)
   @UseGuards(RolesGuard)
-  async create(
-    @Body() body,
-    @Res() res: ResExpress,
-  ): Promise<any> {
+  async create(@Body() body, @Res() res: ResExpress): Promise<any> {
     // console.log('createProductDto: ', createProductDto);
-   let createDto: CreateProductDto = {
-    ...body,
-    bought: 0
-   }
+    let createDto: CreateProductDto = {
+      ...body,
+      bought: 0,
+    };
     const product = await this.productsService.create(createDto);
     res.status(201).json({
       message: 'Tạo sản phẩm thành công',
@@ -77,6 +74,26 @@ export class ProductsController {
 
     res.status(200).json({
       message: 'Lấy danh sách sản phẩm thành công',
+      productNames,
+    });
+  }
+
+  @Public()
+  @Post('filter')
+  async searchAllByTypeAndValue(@Body() body, @Res() res: ResExpress) {
+    const { data, sortOption } = body;
+    console.log('data, sortOption :', data, sortOption);
+
+    if (body.isOr === undefined) {
+      body.isOr = true;
+    }
+    const productNames = await this.productsService.searchAllByTypeAndValue(
+      data,
+      sortOption,
+      body.isOr,
+    );
+    res.status(200).json({
+      message: 'Lọc danh sách sản phẩm thành công',
       productNames,
     });
   }
@@ -169,7 +186,7 @@ export class ProductsController {
       message: 'Xóa sản phẩm thành công',
       product,
     });
-  }  
+  }
 
   // các route liên quan đến review, sử dụng reviewsService
   // chỉ cần là khách hàng là có thể truy cập

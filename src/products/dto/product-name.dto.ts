@@ -6,8 +6,12 @@ export class ProductNameDto {
     code: string;
     detail: string;
     listProduct: Product[];
-    star: number;
+    star?: number;
     bought: number;
     img: string;
     cost: number;
+    coupon?:string;
+    color:string;
+    style: string;
+    
 }

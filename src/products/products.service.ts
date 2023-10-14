@@ -36,30 +36,55 @@ export class ProductsService {
     return new this.productNameModel(createProductName).save();
   }
 
-  async findAllProductName(): Promise<ProductNameDto[]> {
+  async findAllProductName(): Promise<ProductName[]> {
     let listProductName = await this.productNameModel.find().exec();
-    let result = [];
+    let result: ProductName[] = [];
     for (let i = 0; i < listProductName.length; i++) {
-      const products = await this.searchAllByName(listProductName[i].name);
-      let bought = products.reduce((totalBought, product, index) => {
-        totalBought += product.bought;
-        return totalBought;
-      }, 0);
-      const { star = 1, img = "", cost = 0, name ="" } = products[0];
-      let newProduct: ProductNameDto = {
-        listProduct: products,
-        bought,
-        ...listProductName[i],
-        star,
-        img,
-        cost,
-        name
-      };
+      let newProduct: ProductName = await this.findDetailProductByName(
+        listProductName[i],
+      );
       result.push(newProduct);
-
     }
-
     return result;
+  }
+  private async findDetailProductByName(
+    productName: any,
+  ): Promise<ProductName> {
+    let products = await this.searchAllByName(productName.name);
+    let color = '';
+    let bought = products.reduce((totalBought, product, index) => {
+      totalBought += product.bought;
+      if (product.element.sandal.color === product.element.sole.color) {
+        color += product.element.sandal.color + ', ';
+      } else {
+        color +=
+          product.element.sandal.color +
+          ' ' +
+          product.element.sole.color +
+          ', ';
+      }
+      return totalBought;
+    }, 0);
+    let img =
+      'https://i.pinimg.com/474x/43/57/ef/4357ef6978e3bf5a7213738500db1842.jpg';
+    if (products.length > 0) {
+      img = products[0].img;
+    }
+    let newProduct: ProductName = {
+      _id: productName.id,
+      name: productName.name,
+      code: productName.code,
+      detail: productName.detail,
+      listProduct: products,
+      color,
+      bought,
+      img,
+      cost: productName.cost,
+      style: productName.style,
+      coupon: productName.coupon,
+      star: productName.star,
+    };
+    return newProduct;
   }
   async create(createProductDto: CreateProductDto): Promise<Product> {
     console.log('This action adds a new customer');
@@ -155,6 +180,66 @@ export class ProductsService {
       throw new NotFoundException('Không tìm thấy products!');
     }
     return products;
+  }
+
+  async searchAllByTypeAndValue(
+    data: any[],
+    sortOption: string,
+    isOr: boolean,
+  ): Promise<ProductName[]> {
+    // Tạo mảng chứa các điều kiện $or cho từng loại điều kiện (style và color)
+    const orConditions = [];
+
+    // Duyệt qua mảng data để tạo các điều kiện cho từng loại
+    data.forEach((item) => {
+      const regexPattern = new RegExp(item.value, 'i');
+      if (item.type === 'style') {
+        orConditions.push({ style: regexPattern });
+      } else if (item.type === 'color') {
+        orConditions.push({ color: regexPattern });
+      }
+    });
+
+    // Tạo đối tượng sắp xếp dựa trên lựa chọn sắp xếp (sortOption)
+    const sort: any = {};
+    if (sortOption === 'costLowToHigh') {
+      sort.cost = 1; // Giá tăng dần
+    } else if (sortOption === 'costHighToLow') {
+      sort.cost = -1; // Giá giảm dần
+    } else if (sortOption === 'updatedAtNewest') {
+      sort.updatedAt = -1; // Ngày cập nhật mới nhất
+    }
+
+    let conditions: any = {};
+    if (isOr) {
+      conditions = {
+        $or: orConditions,
+      };
+    } else {
+      conditions = {
+        $and: orConditions,
+      };
+    }
+
+    // Thực hiện truy vấn sử dụng toàn bộ các điều kiện trong $or
+    const listProductName = await this.productNameModel
+      .find(conditions)
+      .sort(sort)
+      .exec();
+
+    console.log('result listProductName: ', listProductName);
+
+    if (listProductName.length < 1) {
+      throw new NotFoundException('Không tìm thấy sản phẩm!');
+    }
+    let result: ProductName[] = [];
+    for (let i = 0; i < listProductName.length; i++) {
+      let newProduct: ProductName = await this.findDetailProductByName(
+        listProductName[i],
+      );
+      result.push(newProduct);
+    }
+    return result;
   }
 
   async updateById(
