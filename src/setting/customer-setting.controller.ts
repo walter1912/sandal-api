@@ -8,14 +8,16 @@ import { Request as ReqExpress, Response as ResExpress } from 'express';
 export class CustomerSettingController {
   constructor(private readonly settingService: SettingService) {}
 
-  @Get('/:idCustomer/coupons')
-  async getAllCouponOfCustomer(@Param() params, @Res() res: ResExpress) {
+
+  @Get('/:idCustomer')
+  async getSettingCustomer(@Param() params, @Res() res: ResExpress) {
     const idCustomer = params.idCustomer;
-    const listCoupon =
-      await this.settingService.getAllCouponOfCustomer(idCustomer);
+    const settingCustomer =
+      await this.settingService.getSettingCustomer(idCustomer);
     res.status(200).json({
       message: 'Lấy thành công danh sách mã giảm giá của khách hàng',
-      listCoupon,
+      settingCustomer,
     });
   }
+
 }

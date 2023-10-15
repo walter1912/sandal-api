@@ -92,9 +92,18 @@ export class SettingService {
   }
 
   // phần thuộc quyền của customer
-  async getAllCouponOfCustomer(idCustomer: string) {
-    const setting = await this.findByIdCustomer(idCustomer);
+  async getSettingCustomer(idCustomer: string) {
+    let setting = await this.findByIdCustomer(idCustomer);
     let { coupons } = setting;
+    const listCoupon = await this.getAllCouponOfCustomer(coupons);
+    setting.listCoupon = listCoupon;
+    console.log("setting: ", setting);
+
+    return setting;
+    
+  }
+  async getAllCouponOfCustomer(coupons: string) {
+   
     let listCoupon = coupons.split(',');
     
    return await this.getCouponsFromList(listCoupon);

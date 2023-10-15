@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Coupon } from 'src/coupons/schema/coupon.schema';
 
 export type SettingDocument = HydratedDocument<Setting>;
 @Schema({
@@ -15,6 +16,9 @@ export class Setting {
   type: string;
   @Prop()
   coupons: string;
+  
+  listCoupon?: Coupon[];
+
   @Prop()
   note: string;
   @Prop()
